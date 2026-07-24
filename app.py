@@ -4,6 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from datetime import date
 from dotenv import load_dotenv
 import os
+import urllib.parse as urlparse
 
 load_dotenv()
 
@@ -18,6 +19,18 @@ login_manager.login_view = 'login'
 
 
 def get_connection():
+   
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        url = urlparse.urlparse(database_url)
+        return psycopg2.connect(
+            host=url.hostname,
+            database=url.path[1:],
+            user=url.username,
+            password=url.password,
+            port=url.port
+        )
+    else:
     return psycopg2.connect(
         host="localhost",
         database="expensedb",
